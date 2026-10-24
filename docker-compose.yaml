@@ -1,0 +1,46 @@
+name: kti_infra
+services:
+  nginx:
+    image: "nginx:1.31.6"
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf:/etc/nginx/conf.d
+    depends_on:
+      - flask
+
+  flask:
+    # image: "maomao/flask:1.0"
+    build: .
+    container_name: flask
+    env_file:
+      - flask.env
+    secrets:
+      - db_password
+    command: flask --app app run --host=0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: "postgres:18-alpine"
+    container_name: postgres
+    env_file:
+      - postgres.env
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d flask_db -U flask_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+secrets:
+  db_password:
+    file: ./db_password
+
+volumes:
+  postgres_data:
