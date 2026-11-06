@@ -1,3 +1,3 @@
 [submodule "flask_app"]
 	path = flask_app
-	url = https://github.com/wannacrYYYYYYYYY/flask_app.git
+	url = git@github.com:wannacrYYYYYYYYY/the4thone.git
